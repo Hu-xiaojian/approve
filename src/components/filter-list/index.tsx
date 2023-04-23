@@ -1,65 +1,63 @@
 import React from 'react';
-import { Button, Table } from 'antd';
+import { Button, Table, Modal } from 'antd';
+import { deleteItem } from '@/api';
 
-const columns = [
-  {
-    title: '用户名',
-    dataIndex: 'userName',
-    key: 'userName',
-  },
-  {
-    title: '产品线',
-    dataIndex: 'productLine',
-    key: 'productLine',
-  },
-  {
-    title: '行业',
-    dataIndex: 'industry',
-    key: 'industry',
-  },
-  {
-    title: '创建时间',
-    dataIndex: 'taskCreateTime',
-    key: 'taskCreateTime',
-  },
-  {
-    title: 'Action',
-    key: 'action',
-    render: () => (
-      <>
-        <Button>审核</Button>
-        <Button>删除</Button>
-      </>
-    ),
-  },
-];
+interface FilterListProps {
+  data: any;
+  search: Function;
+}
 
-const data = [
-  {
-    key: '1',
-    userName: 'John Brown',
-    productLine: 32,
-    industry: 'New York No. 1 Lake Park',
-    taskCreateTime: '12：44',
-  },
-  {
-    key: '2',
-    userName: 'John Brown',
-    productLine: 32,
-    industry: 'New York No. 1 Lake Park',
-    taskCreateTime: '12：44',
-  },
-  {
-    key: '3',
-    userName: 'John Brown',
-    productLine: 32,
-    industry: 'New York No. 1 Lake Park',
-    taskCreateTime: '12：44',
-  },
-];
+const FilterList: React.FunctionComponent<FilterListProps> = (props: FilterListProps): React.ReactElement => {
+  const { data, search } = props;
+  const { list, total } = data || {};
 
-const FilterList = () => {
-  return (<Table columns={columns} dataSource={data} />)
+  const columns = [
+    {
+      title: '用户名',
+      dataIndex: 'userName',
+      key: 'userName',
+    },
+    {
+      title: '产品线',
+      dataIndex: 'productLine',
+      key: 'productLine',
+    },
+    {
+      title: '行业',
+      dataIndex: 'industry',
+      key: 'industry',
+    },
+    {
+      title: '创建时间',
+      dataIndex: 'taskCreateTime',
+      key: 'taskCreateTime',
+    },
+    {
+      title: '操作',
+      key: 'action',
+      render: (record: any) => (
+        <>
+          <Button>审核</Button>
+          <Button onClick={() => {
+            Modal.confirm({
+              title: "确定删除此用户吗？",
+              okText: '确认',
+              cancelText: '取消',
+              onOk() {
+                deleteItem({ id: record.id }).then(() => {
+                  search()
+                })
+              },
+            });
+          }}>删除</Button>
+        </>
+      ),
+    },
+  ];
+
+  return (<Table columns={columns} dataSource={list} pagination={{ total, onChange:(page, pageSize) => {
+      search({ pageIndex: page, pageSize });
+    } }}/>)
 };
 
 export default FilterList;

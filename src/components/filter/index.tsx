@@ -1,6 +1,5 @@
 import React from 'react';
 import { Form, DatePicker, Button, Input } from 'antd';
-import { filterEmpty } from '@/utils';
 
 const { RangePicker } = DatePicker;
 
@@ -16,12 +15,6 @@ interface FilterProps {
 }
 
 const Filter = (props: FilterProps) => {
-  const [ state, setState ] = React.useState({});
-
-  React.useEffect(() => {
-    props?.onChange(state);
-  }, [ state ])
-
   return (<Form
     layout="inline"
     name="time_related_controls"
@@ -30,12 +23,15 @@ const Filter = (props: FilterProps) => {
       const rangeTimeValue = fieldsValue['taskCreateTime'];
       const values = { ...fieldsValue, };
       if (rangeTimeValue) {
-        values.taskCreateTime = [
+        values.taskCreateTime = JSON.stringify([
           rangeTimeValue[0].format('YYYY-MM-DD HH:mm:ss'),
           rangeTimeValue[1].format('YYYY-MM-DD HH:mm:ss'),
-        ]
+        ])
       }
-      setState(filterEmpty(values));
+      props?.onChange(values);
+    }}
+    onReset={() => {
+      props?.onChange({userName: '', productLine: '', industry: '', taskCreateTime: ''});
     }}
     style={{ maxWidth: 600, flexWrap: "nowrap" }}
   >
